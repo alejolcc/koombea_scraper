@@ -1,6 +1,8 @@
 defmodule KoombeaScraperWeb.Router do
   use KoombeaScraperWeb, :router
 
+  import KoombeaScraperWeb.UserAuth
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -14,10 +16,24 @@ defmodule KoombeaScraperWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :require_auth do
+    plug :require_authenticated_user
+  end
+
   scope "/", KoombeaScraperWeb do
     pipe_through :browser
 
     get "/", PageController, :home
+  end
+
+  scope "/users", KoombeaScraperWeb do
+    pipe_through :browser
+
+    live "/register", UserRegistrationLive, :new
+    live "/log_in", UserLoginLive, :new
+
+    post "/log_in", UserSessionController, :create
+    delete "/log_out", UserSessionController, :delete
   end
 
   # Other scopes may use custom stacks.
