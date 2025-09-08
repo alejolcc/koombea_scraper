@@ -16,8 +16,12 @@ defmodule KoombeaScraperWeb.UserAuth do
     end)
   end
 
-  defp get_user_from_session(session) do
-    user_id = get_session(session, :user_id)
+  def fetch_current_user(conn, _opts) do
+    assign(conn, :current_user, get_user_from_session(conn))
+  end
+
+  defp get_user_from_session(conn) do
+    user_id = get_session(conn, :user_id)
     user_id && Accounts.get_user!(user_id)
   end
 
@@ -43,6 +47,6 @@ defmodule KoombeaScraperWeb.UserAuth do
       KoombeaScraperWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
     end
 
-    redirect(conn, to: ~p"/")
+    redirect(conn, to: ~p"/users/log_in")
   end
 end

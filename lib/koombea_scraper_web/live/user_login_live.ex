@@ -1,9 +1,6 @@
 defmodule KoombeaScraperWeb.UserLoginLive do
   use KoombeaScraperWeb, :live_view
 
-  alias KoombeaScraper.Accounts
-  alias KoombeaScraperWeb.UserAuth
-
   def render(assigns) do
     ~H"""
     <div class="mx-auto max-w-sm">

@@ -10,6 +10,7 @@ defmodule KoombeaScraperWeb.Router do
     plug :put_root_layout, html: {KoombeaScraperWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug :fetch_current_user
   end
 
   pipeline :api do
@@ -21,7 +22,7 @@ defmodule KoombeaScraperWeb.Router do
   end
 
   scope "/", KoombeaScraperWeb do
-    pipe_through :browser
+    pipe_through [:browser, :require_auth]
 
     get "/", PageController, :home
   end
