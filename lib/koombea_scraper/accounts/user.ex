@@ -42,19 +42,16 @@ defmodule KoombeaScraper.Accounts.User do
     changeset
     |> validate_required([:password])
     |> validate_length(:password, min: 8, max: 72)
-    # The password may be hashed side-effectually in a different context.
-    # Since Ecto requires hashes to be explicitly marked as such, this
-    # changeset may be invalid if the password hash has not been generated.
     |> maybe_hash_password(opts)
   end
 
+  # For simplicity, we are not enforcing complex password rules here.
   defp maybe_hash_password(changeset, opts) do
     hash_password? = Keyword.get(opts, :hash_password, true)
     password = get_change(changeset, :password)
 
     if hash_password? && password && changeset.valid? do
       changeset
-      # If using Bcrypt, then further validate complexity requirements.
       # Changeset.validate_format(:password, ~r/[a-z]/, message: "at least one lower case character")
       # |> Changeset.validate_format(:password, ~r/[A-Z]/, message: "at least one upper case character")
       # |> Changeset.validate_format(:password, ~r/[!?@#$%^&*_0-9]/, message: "at least one digit or special character")
