@@ -1,5 +1,5 @@
 defmodule KoombeaScraper.ScraperTest do
-  use KoombeaScraper.DataCase, async: true
+  use KoombeaScraper.DataCase, async: false
 
   alias KoombeaScraper.Scraper
   alias KoombeaScraper.Scraper.{Page, Link}

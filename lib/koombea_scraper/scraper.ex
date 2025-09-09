@@ -11,7 +11,6 @@ defmodule KoombeaScraper.Scraper do
   alias KoombeaScraper.Scraper.Page
   alias KoombeaScraper.Scraper.Link
   alias KoombeaScraper.Accounts.User
-  alias KoombeaScraper.Workers.WorkerSupervisor
 
   alias Phoenix.PubSub
 
@@ -61,10 +60,11 @@ defmodule KoombeaScraper.Scraper do
   def create_page_from_url(url, user_id) do
     attrs = %{title: "Scraping...", url: url, user_id: user_id, status: :in_progress}
 
-    with {:ok, page} <- create_page(attrs) do
-      WorkerSupervisor.start_worker(page)
-      {:ok, page}
-    else
+    case create_page(attrs) do
+      {:ok, page} ->
+        KoombeaScraper.Workers.Worker.scrape(page.id)
+        {:ok, page}
+
       {:error, changeset} = error ->
         Logger.error("Failed to create page: #{inspect(changeset)}")
         error
@@ -84,7 +84,11 @@ defmodule KoombeaScraper.Scraper do
 
     Multi.new()
     |> Multi.update(:page, page_changeset)
-    |> Multi.insert_all(:links, Link, links)
+    |> Multi.insert_all(:links, Link, links,
+      # Because we are calling this from a GenServer we want the operation to be idempotent
+      on_conflict: :nothing,
+      on_conflict_target: [:page_id, :url, :name]
+    )
     |> Repo.transaction()
     |> case do
       {:ok, %{page: updated_page}} ->

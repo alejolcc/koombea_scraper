@@ -8,4 +8,4 @@ For handling background jobs, I am using a manually created Dynamic Supervisor. 
 
 For test fixtures, I've created manual helper functions. In a larger-scale project, I would use a library like ExMachina to streamline the creation of test data and improve the maintainability of the test suite.
 
-In a large-scale production project, my default choice would be to use the official generator to leverage its robustness and complete feature set. However, for the context of this challenge, a custom-tailored approach was more appropriate.
+Migrations, I update the migration files for simplicity, but the correct way to do it is to create new migrations files

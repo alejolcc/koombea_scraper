@@ -15,7 +15,7 @@ defmodule KoombeaScraper.Application do
       # Start a worker by calling: KoombeaScraper.Worker.start_link(arg)
       # {KoombeaScraper.Worker, arg},
       # Start to serve requests, typically the last entry
-      KoombeaScraper.Workers.WorkerSupervisor,
+      KoombeaScraper.Workers.Worker,
       KoombeaScraperWeb.Endpoint
     ]
 

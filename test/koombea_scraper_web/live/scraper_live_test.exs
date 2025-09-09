@@ -1,5 +1,5 @@
 defmodule KoombeaScraperWeb.ScraperLiveTest do
-  use KoombeaScraperWeb.ConnCase
+  use KoombeaScraperWeb.ConnCase, async: false
 
   import Phoenix.LiveViewTest
 
