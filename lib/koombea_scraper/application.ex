@@ -12,21 +12,14 @@ defmodule KoombeaScraper.Application do
       KoombeaScraper.Repo,
       {DNSCluster, query: Application.get_env(:koombea_scraper, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: KoombeaScraper.PubSub},
-      # Start a worker by calling: KoombeaScraper.Worker.start_link(arg)
-      # {KoombeaScraper.Worker, arg},
-      # Start to serve requests, typically the last entry
       KoombeaScraper.Workers.Worker,
       KoombeaScraperWeb.Endpoint
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: KoombeaScraper.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
     KoombeaScraperWeb.Endpoint.config_change(changed, removed)

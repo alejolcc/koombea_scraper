@@ -43,6 +43,8 @@ defmodule KoombeaScraperWeb.UserAuth do
       KoombeaScraperWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
     end
 
-    redirect(conn, to: ~p"/users/log_in")
+    conn
+    |> Plug.Conn.clear_session()
+    |> redirect(to: ~p"/users/log_in")
   end
 end

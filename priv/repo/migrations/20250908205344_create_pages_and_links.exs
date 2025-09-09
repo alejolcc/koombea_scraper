@@ -11,7 +11,7 @@ defmodule KoombeaScraper.Repo.Migrations.CreatePagesAndLinks do
       timestamps()
     end
 
-    create unique_index(:pages, [:url])
+    create unique_index(:pages, [:url, :user_id])
 
     create table(:links) do
       add :name, :text

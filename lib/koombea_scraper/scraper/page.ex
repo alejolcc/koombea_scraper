@@ -18,7 +18,7 @@ defmodule KoombeaScraper.Scraper.Page do
     |> cast(attrs, [:title, :url, :user_id, :status])
     |> validate_required([:title, :url, :user_id])
     |> validate_url_format(:url)
-    |> unique_constraint(:url, name: :pages_url_index)
+    |> unique_constraint(:url, name: :pages_url_user_id_index)
   end
 
   defp validate_url_format(changeset, field) do

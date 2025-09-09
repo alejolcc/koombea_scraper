@@ -91,6 +91,18 @@ defmodule KoombeaScraper.ScraperTest do
       assert {:error, %Ecto.Changeset{} = ch} = Scraper.create_page_from_url(url, user.id)
       assert errors_on(ch).url == ["is not a valid URL"]
     end
+
+    test "multiples users can create pages with the same URL" do
+      user1 = user_fixture(%{email: "user1@example.com"})
+      user2 = user_fixture(%{email: "user2@example.com"})
+
+      {:ok, page1} = Scraper.create_page_from_url("https://example.com", user1.id)
+      {:ok, page2} = Scraper.create_page_from_url("https://example.com", user2.id)
+
+      assert page1.url == "https://example.com"
+      assert page2.url == "https://example.com"
+      assert page1.user_id != page2.user_id
+    end
   end
 
   describe "links" do
