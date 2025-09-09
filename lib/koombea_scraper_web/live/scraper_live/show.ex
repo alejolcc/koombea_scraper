@@ -17,9 +17,17 @@ defmodule KoombeaScraperWeb.ScraperLive.Show do
         </:actions>
       </.header>
 
-      <.list>
-        <:item title="Title">{@page.title}</:item>
-      </.list>
+      <div class="mt-32">
+        <div class="px-4 sm:px-8 max-w-5xl m-auto">
+          <ul class="border border-gray-200 rounded overflow-hidden shadow-md">
+            <%= for link <- @page.links do %>
+              <li class="px-4 py-2 border-b border-gray-200">
+                <.link_row link={link} />
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     </Layouts.app>
     """
   end
@@ -29,6 +37,15 @@ defmodule KoombeaScraperWeb.ScraperLive.Show do
     {:ok,
      socket
      |> assign(:page_title, "Show Page")
-     |> assign(:page, Scraper.get_page!(id))}
+     |> assign(:page, Scraper.get_page!(id, preloads: [:links]))}
+  end
+
+  defp link_row(assigns) do
+    ~H"""
+    <div class="grid grid-cols-2 gap-2">
+      <div>{@link.name}</div>
+      <div>{@link.url}</div>
+    </div>
+    """
   end
 end

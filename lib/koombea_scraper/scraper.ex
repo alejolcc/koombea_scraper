@@ -38,7 +38,12 @@ defmodule KoombeaScraper.Scraper do
     Repo.all(query)
   end
 
-  def get_page!(id), do: Repo.get!(Page, id)
+  def get_page!(id, opts \\ []) do
+    preloads = Keyword.get(opts, :preloads, [])
+
+    Repo.get(Page, id)
+    |> Repo.preload(preloads)
+  end
 
   def create_page(attrs \\ %{}) do
     %Page{}
@@ -51,18 +56,7 @@ defmodule KoombeaScraper.Scraper do
       {:ok, %{title: title, links: links}} ->
         Repo.transaction(fn ->
           with {:ok, page} <- create_page(%{title: title, url: url, user_id: user_id}) do
-            now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
-
-            links_with_timestamps =
-              Enum.map(links, fn link ->
-                Map.merge(link, %{
-                  page_id: page.id,
-                  inserted_at: now,
-                  updated_at: now
-                })
-              end)
-
-            Repo.insert_all(Link, links_with_timestamps)
+            add_links_to_page(page, links)
             {:ok, page}
           end
         end)
@@ -70,6 +64,17 @@ defmodule KoombeaScraper.Scraper do
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  def add_links_to_page(%Page{} = page, links) when is_list(links) do
+    links =
+      Enum.map(links, fn link ->
+        Map.merge(link, %{
+          page_id: page.id
+        })
+      end)
+
+    Repo.insert_all(Link, links)
   end
 
   def update_page(%Page{} = page, attrs) do

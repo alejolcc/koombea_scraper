@@ -6,8 +6,6 @@ defmodule KoombeaScraper.Scraper.Link do
     field :name, :string
     field :url, :string
     belongs_to :page, KoombeaScraper.Scraper.Page
-
-    timestamps()
   end
 
   @doc false

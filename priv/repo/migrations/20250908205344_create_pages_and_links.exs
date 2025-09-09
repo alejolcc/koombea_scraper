@@ -5,7 +5,8 @@ defmodule KoombeaScraper.Repo.Migrations.CreatePagesAndLinks do
     create table(:pages) do
       add :title, :string
       add :url, :string
-      add :user_id, references(:users, on_delete: :nothing)
+      add :status, :string
+      add :user_id, references(:users, on_delete: :delete_all)
 
       timestamps()
     end
@@ -15,9 +16,7 @@ defmodule KoombeaScraper.Repo.Migrations.CreatePagesAndLinks do
     create table(:links) do
       add :name, :string
       add :url, :string
-      add :page_id, references(:pages, on_delete: :nothing)
-
-      timestamps()
+      add :page_id, references(:pages, on_delete: :delete_all)
     end
   end
 end
