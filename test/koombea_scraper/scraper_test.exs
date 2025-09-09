@@ -70,7 +70,7 @@ defmodule KoombeaScraper.ScraperTest do
       assert Scraper.list_pages() == [page]
     end
 
-    test "get_page!/1 returns the page with given id", %{ page: page} do
+    test "get_page!/1 returns the page with given id", %{page: page} do
       assert Scraper.get_page!(page.id) == page
     end
 
@@ -101,21 +101,21 @@ defmodule KoombeaScraper.ScraperTest do
       assert "has already been taken" in errors_on(changeset).url
     end
 
-    test "update_page/2 with valid data updates the page",  %{user: user} do
+    test "update_page/2 with valid data updates the page", %{user: user} do
       page = page_fixture(user)
       assert {:ok, %Page{} = updated_page} = Scraper.update_page(page, @update_attrs)
       assert updated_page.title == "Koombea Inc."
       assert updated_page.url == "https://www.koombea.com"
     end
 
-    test "update_page/2 with invalid data returns error changeset",  %{user: user} do
+    test "update_page/2 with invalid data returns error changeset", %{user: user} do
       page = page_fixture(user)
       assert {:error, %Ecto.Changeset{}} = Scraper.update_page(page, @invalid_attrs)
       # Ensure the original page was not changed
       assert page == Scraper.get_page!(page.id)
     end
 
-    test "delete_page/1 deletes the page",  %{user: user} do
+    test "delete_page/1 deletes the page", %{user: user} do
       page = page_fixture(user)
       assert {:ok, %Page{}} = Scraper.delete_page(page)
       assert_raise Ecto.NoResultsError, fn -> Scraper.get_page!(page.id) end

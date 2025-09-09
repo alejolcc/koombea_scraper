@@ -19,7 +19,7 @@ defmodule KoombeaScraperWeb.UserRegistrationLive do
 
       <.form for={@form} id="registration_form" phx-submit="save">
         <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:usernmae]} label="Username" required />
+        <.input field={@form[:username]} label="Username" required />
         <.input field={@form[:password]} type="password" label="Password" required />
         <.input
           field={@form[:password_confirmation]}

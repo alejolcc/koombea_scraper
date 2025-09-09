@@ -5,11 +5,36 @@ defmodule KoombeaScraper.Scraper do
 
   import Ecto.Query, warn: false
   alias KoombeaScraper.Repo
-
   alias KoombeaScraper.Scraper.Page
+  alias KoombeaScraper.Scraper.Link
+  alias KoombeaScraper.Accounts.User
 
   def list_pages do
     Repo.all(Page)
+  end
+
+  @doc """
+  Retrieves all pages for a given user, including a count of links for each page.
+
+  Returns a list of tuples in the format `{%KoombeaScraper.Scraper.Page{}, link_count}`.
+
+  ## Examples
+
+      iex> list_user_pages_with_link_count(user)
+      [%Page{id: 1, ...}, 5]
+
+  Is used to avoid N+1 query problem when displaying pages with their link counts.
+  """
+  def list_user_pages_with_link_count(%User{} = user) do
+    query =
+      from(p in Page,
+        where: p.user_id == ^user.id,
+        left_join: l in assoc(p, :links),
+        group_by: p.id,
+        select: {p, count(l.id)}
+      )
+
+    Repo.all(query)
   end
 
   def get_page!(id), do: Repo.get!(Page, id)
@@ -30,7 +55,9 @@ defmodule KoombeaScraper.Scraper do
     Repo.delete(page)
   end
 
-  alias KoombeaScraper.Scraper.Link
+  def calculate_total_links(%Page{} = page) do
+    Repo.aggregate(from(l in Link, where: l.page_id == ^page.id), :count, :id)
+  end
 
   def list_links do
     Repo.all(Link)

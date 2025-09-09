@@ -6,23 +6,19 @@ defmodule KoombeaScraperWeb.UserAuth do
 
   alias KoombeaScraper.Accounts
 
-  def on_mount(:mount_current_user, _params, session, socket) do
-    {:cont, mount_current_user(socket, session)}
-  end
-
-  defp mount_current_user(socket, session) do
-    Phoenix.Component.assign_new(socket, :current_user, fn ->
-      get_user_from_session(session)
-    end)
-  end
-
   def fetch_current_user(conn, _opts) do
     assign(conn, :current_user, get_user_from_session(conn))
   end
 
   defp get_user_from_session(conn) do
     user_id = get_session(conn, :user_id)
-    user_id && Accounts.get_user!(user_id)
+
+    if user_id do
+      case Accounts.get_user(user_id) do
+        {:error, _} -> nil
+        {:ok, user} -> user
+      end
+    end
   end
 
   def log_in_user(conn, user) do

@@ -2,7 +2,9 @@ defmodule KoombeaScraperWeb.ErrorJSONTest do
   use KoombeaScraperWeb.ConnCase, async: true
 
   test "renders 404" do
-    assert KoombeaScraperWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
+    assert KoombeaScraperWeb.ErrorJSON.render("404.json", %{}) == %{
+             errors: %{detail: "Not Found"}
+           }
   end
 
   test "renders 500" do

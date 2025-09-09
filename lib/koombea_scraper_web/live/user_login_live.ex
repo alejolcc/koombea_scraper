@@ -19,7 +19,7 @@ defmodule KoombeaScraperWeb.UserLoginLive do
         <.input field={@form[:email]} type="email" label="Email" required />
         <.input field={@form[:password]} type="password" label="Password" required />
 
-        <.button phx-disable-with="Signing in..." >
+        <.button phx-disable-with="Signing in...">
           Sign in <span aria-hidden="true">→</span>
         </.button>
       </.form>
