@@ -5,6 +5,7 @@ defmodule KoombeaScraper.Scraper do
 
   import Ecto.Query, warn: false
   alias KoombeaScraper.Repo
+  alias KoombeaScraper.Client
   alias KoombeaScraper.Scraper.Page
   alias KoombeaScraper.Scraper.Link
   alias KoombeaScraper.Accounts.User
@@ -43,6 +44,32 @@ defmodule KoombeaScraper.Scraper do
     %Page{}
     |> Page.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def create_page_from_url(url, user_id) do
+    case Client.scrape(url) do
+      {:ok, %{title: title, links: links}} ->
+        Repo.transaction(fn ->
+          with {:ok, page} <- create_page(%{title: title, url: url, user_id: user_id}) do
+            now = NaiveDateTime.utc_now() |> NaiveDateTime.truncate(:second)
+
+            links_with_timestamps =
+              Enum.map(links, fn link ->
+                Map.merge(link, %{
+                  page_id: page.id,
+                  inserted_at: now,
+                  updated_at: now
+                })
+              end)
+
+            Repo.insert_all(Link, links_with_timestamps)
+            {:ok, page}
+          end
+        end)
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   def update_page(%Page{} = page, attrs) do

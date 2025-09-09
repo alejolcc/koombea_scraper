@@ -103,10 +103,6 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
   # This function will start the scraping task
   # For now, it's just a placeholder
   defp start_scrpaing(url, user_id) do
-    Scraper.create_page(%{
-      title: "some title",
-      url: url,
-      user_id: user_id
-    })
+    Scraper.create_page_from_url(url, user_id)
   end
 end
