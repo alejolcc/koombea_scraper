@@ -36,6 +36,33 @@ defmodule KoombeaScraperWeb.Layouts do
   def app(assigns) do
     ~H"""
     <main class="px-4 py-20 sm:px-6 lg:px-8">
+      <header class="navbar px-4 sm:px-6 lg:px-8">
+        <div class="flex-none">
+          <ul class="flex flex-column px-1 space-x-4 items-center">
+            <li>
+              <.link navigate={~p"/users/register"}>Register</.link>
+            </li>
+
+            <li>
+              <.link navigate={~p"/users/log_in"}>Log in</.link>
+            </li>
+
+            <li>
+              <.link
+                href={~p"/users/log_out"}
+                method="delete"
+              >
+                Log out
+              </.link>
+            </li>
+
+            <li>
+              <.theme_toggle />
+            </li>
+          </ul>
+        </div>
+      </header>
+
       <div class="mx-auto max-w-2xl space-y-4">
         {render_slot(@inner_block)}
       </div>

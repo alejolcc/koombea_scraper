@@ -8,14 +8,11 @@ defmodule KoombeaScraperWeb.ScraperLive.Show do
     ~H"""
     <Layouts.app flash={@flash}>
       <.header>
-        Page {@page.id}
-        <:subtitle>This is a page record from your database.</:subtitle>
+        {@page.title}
+
         <:actions>
           <.button navigate={~p"/pages"}>
             <.icon name="hero-arrow-left" />
-          </.button>
-          <.button variant="primary" navigate={~p"/pages/#{@page}/edit?return_to=show"}>
-            <.icon name="hero-pencil-square" /> Edit page
           </.button>
         </:actions>
       </.header>

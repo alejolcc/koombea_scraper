@@ -12,14 +12,17 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
         Listing Pages
       </.header>
 
-      <form phx-change="search" class="w-full">
-        <input
-          type="text"
-          name="query"
-          placeholder="Add new page by URL"
-          class="input input-bordered w-full max-w-xs"
-          phx-debounce="300"
-        />
+      <form phx-submit="scrape" class="w-full max-w-sm">
+        <div class="flex items-center gap-2">
+          <input
+            type="text"
+            name="query"
+            placeholder="Add new page by URL"
+            class="input input-bordered w-full"
+            phx-debounce="300"
+          />
+          <button type="submit" class="btn btn-primary">Scrape</button>
+        </div>
       </form>
 
       <.table
@@ -31,8 +34,8 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
         <:col :let={{_page, link_count}} label="Total Links">{link_count}</:col>
 
         <:action :let={{page, _link_count}}>
-          <div class="sr-only">
-            <.link navigate={~p"/pages/#{page}"}>Show</.link>
+          <div>
+            <.link navigate={~p"/pages/#{page.id}"}>Show</.link>
           </div>
         </:action>
         <:action :let={{page, _link_count}}>
@@ -72,13 +75,17 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
     page = Scraper.get_page!(id)
     {:ok, _} = Scraper.delete_page(page)
 
-    {:noreply, stream_delete(socket, :pages, page)}
+    socket = push_patch(socket, to: ~p"/pages")
+    {:noreply, socket}
   end
 
   @impl true
-  def handle_event("search", %{"query" => query}, socket) do
+  def handle_event("scrape", %{"query" => url}, socket) do
+    # TODO: This will triger the task to scrape the page and store links
+    user_id = socket.assigns.current_user.id
+    start_scrpaing(url, user_id)
 
-    IO.inspect query, label: "Search query"
+    socket = push_patch(socket, to: ~p"/pages")
     {:noreply, socket}
   end
 
@@ -93,7 +100,13 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
     end
   end
 
-  defp list_pages() do
-    Scraper.list_pages()
+  # This function will start the scraping task
+  # For now, it's just a placeholder
+  defp start_scrpaing(url, user_id) do
+    Scraper.create_page(%{
+      title: "some title",
+      url: url,
+      user_id: user_id
+    })
   end
 end
