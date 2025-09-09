@@ -17,6 +17,27 @@ defmodule KoombeaScraper.Scraper.Page do
     page
     |> cast(attrs, [:title, :url, :user_id, :status])
     |> validate_required([:title, :url, :user_id])
+    |> validate_url_format(:url)
     |> unique_constraint(:url, name: :pages_url_index)
+  end
+
+  defp validate_url_format(changeset, field) do
+    # Get the value of the field from the changeset
+    url = get_field(changeset, field)
+
+    # Only run the validation if the URL is not nil
+    if url do
+      case URI.parse(url) do
+        # A valid URI must have a host (e.g., "google.com") and a valid scheme
+        %URI{scheme: scheme, host: host} when scheme in ["http", "https"] and not is_nil(host) ->
+          changeset
+
+        _ ->
+          add_error(changeset, field, "is not a valid URL")
+      end
+    else
+      # If the field is nil, let `validate_required` handle the error.
+      changeset
+    end
   end
 end

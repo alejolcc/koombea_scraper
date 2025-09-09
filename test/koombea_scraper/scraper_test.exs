@@ -73,6 +73,27 @@ defmodule KoombeaScraper.ScraperTest do
       assert {:ok, %Page{}} = Scraper.delete_page(page)
       assert_raise Ecto.NoResultsError, fn -> Scraper.get_page!(page.id) end
     end
+
+    @tag :wip
+    test "create_page_from_url/2 creates a page", %{user: user} do
+      url = "https://example.com"
+      assert {:ok, %Page{} = page} = Scraper.create_page_from_url(url, user.id)
+      assert page.url == url
+      assert page.user_id == user.id
+      assert page.status == :in_progress
+    end
+
+    @tag :wip
+    test "create_page_from_url/2 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Scraper.create_page_from_url(nil, nil)
+    end
+
+    @tag :wip
+    test "create_page_from_url/2 with invalid URL returns error", %{user: user} do
+      url = "invalid-url"
+      assert {:error, %Ecto.Changeset{} = ch} = Scraper.create_page_from_url(url, user.id)
+      assert errors_on(ch).url == ["is not a valid URL"]
+    end
   end
 
   describe "links" do

@@ -85,9 +85,16 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
 
   @impl true
   def handle_event("scrape", %{"query" => url}, socket) do
-    # TODO: This will triger the task to scrape the page and store links
     user_id = socket.assigns.current_user.id
-    start_scrpaing(url, user_id)
+
+    socket =
+      case Scraper.create_page_from_url(url, user_id) do
+        {:ok, _page} ->
+          socket
+
+        {:error, _changeset} ->
+          put_flash(socket, :error, "Failed to scrape page")
+      end
 
     socket = push_patch(socket, to: ~p"/pages")
     {:noreply, socket}
@@ -117,11 +124,5 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
     else
       socket
     end
-  end
-
-  # This function will start the scraping task
-  # For now, it's just a placeholder
-  defp start_scrpaing(url, user_id) do
-    Scraper.create_page_from_url(url, user_id)
   end
 end

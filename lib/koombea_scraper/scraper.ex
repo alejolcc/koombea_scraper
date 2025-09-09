@@ -64,6 +64,10 @@ defmodule KoombeaScraper.Scraper do
     with {:ok, page} <- create_page(attrs) do
       WorkerSupervisor.start_worker(page)
       {:ok, page}
+    else
+      {:error, changeset} = error ->
+        Logger.error("Failed to create page: #{inspect(changeset)}")
+        error
     end
   end
 
