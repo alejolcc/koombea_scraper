@@ -53,6 +53,10 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
 
   @impl true
   def mount(_params, session, socket) do
+    if connected?(socket) do
+      Scraper.subscribe()
+    end
+
     {:ok,
      socket
      |> assign_user(session)
@@ -84,6 +88,21 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
     # TODO: This will triger the task to scrape the page and store links
     user_id = socket.assigns.current_user.id
     start_scrpaing(url, user_id)
+
+    socket = push_patch(socket, to: ~p"/pages")
+    {:noreply, socket}
+  end
+
+  # Here we can handle the incoming message and update on the list just the
+  # changed item to avoid the extra query. But for simplicity, I will just reload the whole list.
+  @impl true
+  def handle_info({:page_updated, status, _page}, socket) do
+    socket =
+      if status == :ok do
+        put_flash(socket, :info, "Successfully scraped the page.")
+      else
+        put_flash(socket, :error, "Scraping failed.")
+      end
 
     socket = push_patch(socket, to: ~p"/pages")
     {:noreply, socket}

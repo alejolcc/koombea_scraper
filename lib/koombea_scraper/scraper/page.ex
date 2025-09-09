@@ -5,7 +5,7 @@ defmodule KoombeaScraper.Scraper.Page do
   schema "pages" do
     field :title, :string
     field :url, :string
-    field :status, Ecto.Enum, values: [:in_progress, :finish]
+    field :status, Ecto.Enum, values: [:in_progress, :finish, :failed]
     belongs_to :user, KoombeaScraper.Accounts.User
     has_many :links, KoombeaScraper.Scraper.Link
 

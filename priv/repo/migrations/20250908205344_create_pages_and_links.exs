@@ -3,8 +3,8 @@ defmodule KoombeaScraper.Repo.Migrations.CreatePagesAndLinks do
 
   def change do
     create table(:pages) do
-      add :title, :string
-      add :url, :string
+      add :title, :text
+      add :url, :text
       add :status, :string
       add :user_id, references(:users, on_delete: :delete_all)
 
@@ -14,8 +14,8 @@ defmodule KoombeaScraper.Repo.Migrations.CreatePagesAndLinks do
     create unique_index(:pages, [:url])
 
     create table(:links) do
-      add :name, :string
-      add :url, :string
+      add :name, :text
+      add :url, :text
       add :page_id, references(:pages, on_delete: :delete_all)
     end
   end

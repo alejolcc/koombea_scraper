@@ -38,7 +38,7 @@ defmodule KoombeaScraper.MixProject do
   # Specifies your project dependencies.
   #
   # Type `mix help deps` for examples and options.
-    defp deps do
+  defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.8.0"},

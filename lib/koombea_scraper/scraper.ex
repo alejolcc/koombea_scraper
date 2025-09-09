@@ -3,12 +3,19 @@ defmodule KoombeaScraper.Scraper do
   The Scraper context.
   """
 
+  require Logger
   import Ecto.Query, warn: false
+
+  alias Ecto.Multi
   alias KoombeaScraper.Repo
-  alias KoombeaScraper.Client
   alias KoombeaScraper.Scraper.Page
   alias KoombeaScraper.Scraper.Link
   alias KoombeaScraper.Accounts.User
+  alias KoombeaScraper.Workers.WorkerSupervisor
+
+  alias Phoenix.PubSub
+
+  @pubsub KoombeaScraper.PubSub
 
   def list_pages do
     Repo.all(Page)
@@ -52,21 +59,15 @@ defmodule KoombeaScraper.Scraper do
   end
 
   def create_page_from_url(url, user_id) do
-    case Client.scrape(url) do
-      {:ok, %{title: title, links: links}} ->
-        Repo.transaction(fn ->
-          with {:ok, page} <- create_page(%{title: title, url: url, user_id: user_id}) do
-            add_links_to_page(page, links)
-            {:ok, page}
-          end
-        end)
+    attrs = %{title: "Scraping...", url: url, user_id: user_id, status: :in_progress}
 
-      {:error, reason} ->
-        {:error, reason}
+    with {:ok, page} <- create_page(attrs) do
+      WorkerSupervisor.start_worker(page)
+      {:ok, page}
     end
   end
 
-  def add_links_to_page(%Page{} = page, links) when is_list(links) do
+  def add_links_and_update_page(%Page{} = page, links, attrs) when is_list(links) do
     links =
       Enum.map(links, fn link ->
         Map.merge(link, %{
@@ -74,7 +75,21 @@ defmodule KoombeaScraper.Scraper do
         })
       end)
 
-    Repo.insert_all(Link, links)
+    page_attrs = Map.merge(attrs, %{status: :finish})
+    page_changeset = Page.changeset(page, page_attrs)
+
+    Multi.new()
+    |> Multi.update(:page, page_changeset)
+    |> Multi.insert_all(:links, Link, links)
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{page: updated_page}} ->
+        {:ok, updated_page}
+
+      {:error, _operation, reason, _changes} ->
+        Logger.error("Failed to add links and update page: #{inspect(reason)}")
+        {:error, reason}
+    end
   end
 
   def update_page(%Page{} = page, attrs) do
@@ -111,5 +126,17 @@ defmodule KoombeaScraper.Scraper do
 
   def delete_link(%Link{} = link) do
     Repo.delete(link)
+  end
+
+  def subscribe() do
+    Phoenix.PubSub.subscribe(@pubsub, "page_update")
+  end
+
+  def unsubscribe() do
+    Phoenix.PubSub.unsubscribe(@pubsub, "page_update")
+  end
+
+  def notify(event) do
+    PubSub.broadcast(@pubsub, "page_update", event)
   end
 end
