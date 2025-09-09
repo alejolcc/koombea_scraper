@@ -48,7 +48,7 @@ defmodule KoombeaScraper.Scraper do
   def get_page!(id, opts \\ []) do
     preloads = Keyword.get(opts, :preloads, [])
 
-    Repo.get(Page, id)
+    Repo.get!(Page, id)
     |> Repo.preload(preloads)
   end
 

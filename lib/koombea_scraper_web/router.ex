@@ -24,7 +24,7 @@ defmodule KoombeaScraperWeb.Router do
   scope "/", KoombeaScraperWeb do
     pipe_through [:browser, :require_auth]
 
-    get "/", PageController, :home
+    live "/", ScraperLive.Index, :index
     live "/pages", ScraperLive.Index, :index
     live "/pages/:id", ScraperLive.Show, :show
   end

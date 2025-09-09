@@ -3,62 +3,15 @@ defmodule KoombeaScraper.ScraperTest do
 
   alias KoombeaScraper.Scraper
   alias KoombeaScraper.Scraper.{Page, Link}
-  alias KoombeaScraper.Accounts
+
+  import KoombeaScraper.AccountsFixtures
+  import KoombeaScraper.LinkFixtures
+  import KoombeaScraper.PageFixtures
 
   setup do
     user = user_fixture()
     page = page_fixture(user)
     %{user: user, page: page}
-  end
-
-  @doc """
-  Generates a user for testing.
-  """
-  def user_fixture(attrs \\ %{}) do
-    {:ok, user} =
-      attrs
-      |> Enum.into(%{
-        email: "user#{System.unique_integer()}@example.com",
-        password: "password123",
-        password_confirmation: "password123"
-      })
-      |> Accounts.register_user()
-
-    user
-  end
-
-  @doc """
-  Generates a page for testing.
-  It requires a user to be associated with.
-  """
-  def page_fixture(user, attrs \\ %{}) do
-    {:ok, page} =
-      attrs
-      |> Enum.into(%{
-        title: "Some title",
-        url: "https://example.com/#{System.unique_integer([:positive])}",
-        user_id: user.id
-      })
-      |> Scraper.create_page()
-
-    page
-  end
-
-  @doc """
-  Generates a link for testing.
-  It requires a page to be associated with.
-  """
-  def link_fixture(page, attrs \\ %{}) do
-    {:ok, link} =
-      attrs
-      |> Enum.into(%{
-        name: "Some link name",
-        url: "https://example.com/link-#{System.unique_integer([:positive])}",
-        page_id: page.id
-      })
-      |> Scraper.create_link()
-
-    link
   end
 
   describe "pages" do
