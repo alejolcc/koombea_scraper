@@ -141,6 +141,9 @@ defmodule KoombeaScraper.Scraper do
 
   """
   def add_links_and_update_page(%Page{} = page, links, attrs) when is_list(links) do
+    # Re-fetch the page to get the latest data and preloads
+    page = get_page!(page.id, preloads: [:links])
+
     links =
       Enum.map(links, fn link ->
         Map.merge(link, %{

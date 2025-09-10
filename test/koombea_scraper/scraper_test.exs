@@ -152,4 +152,48 @@ defmodule KoombeaScraper.ScraperTest do
       assert_raise Ecto.NoResultsError, fn -> Scraper.get_link!(link.id) end
     end
   end
+
+  describe "pagination" do
+    setup do
+      user = user_fixture()
+
+      for _ <- 1..15 do
+        page_fixture(user)
+      end
+
+      page = page_fixture(user)
+
+      for i <- 1..15 do
+        link_fixture(page, %{name: "Link #{i}"})
+      end
+
+      %{user: user, page: page}
+    end
+
+    test "list_user_pages_with_link_count/2 paginates pages", %{user: user} do
+      # Total pages
+      assert Scraper.count_user_pages(user) == 16
+
+      # First page
+      pages_with_counts = Scraper.list_user_pages_with_link_count(user, page: 1, per_page: 10)
+      assert length(pages_with_counts) == 10
+
+      # Second page
+      pages_with_counts = Scraper.list_user_pages_with_link_count(user, page: 2, per_page: 10)
+      assert length(pages_with_counts) == 6
+    end
+
+    test "list_page_links/2 paginates links", %{page: page} do
+      # Total links
+      assert Scraper.calculate_total_links(page) == 15
+
+      # First page
+      links = Scraper.list_page_links(page, page: 1, per_page: 10)
+      assert length(links) == 10
+
+      # Second page
+      links = Scraper.list_page_links(page, page: 2, per_page: 10)
+      assert length(links) == 5
+    end
+  end
 end
