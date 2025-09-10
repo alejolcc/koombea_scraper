@@ -9,3 +9,5 @@ For handling background jobs, I am using a manually created Dynamic Supervisor. 
 For test fixtures, I've created manual helper functions. In a larger-scale project, I would use a library like ExMachina to streamline the creation of test data and improve the maintainability of the test suite.
 
 Migrations, I update the migration files for simplicity, but the correct way to do it is to create new migrations files
+
+Pagination, the backend logic handle the params to do query with paginations, but  I'm lazy to create a proper pagination implementation since the instructions say that is not so important. 

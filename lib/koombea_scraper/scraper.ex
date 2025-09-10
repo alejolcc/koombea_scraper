@@ -41,16 +41,28 @@ defmodule KoombeaScraper.Scraper do
 
   Is used to avoid N+1 query problem when displaying pages with their link counts.
   """
-  def list_user_pages_with_link_count(%User{} = user) do
+  def list_user_pages_with_link_count(%User{} = user, params \\ []) do
+    per_page = Keyword.get(params, :per_page, 10)
+    page = Keyword.get(params, :page, 1)
+    offset = (page - 1) * per_page
+
     query =
       from(p in Page,
         where: p.user_id == ^user.id,
         left_join: l in assoc(p, :links),
         group_by: p.id,
-        select: {p, count(l.id)}
+        order_by: [desc: p.inserted_at],
+        select: {p, count(l.id)},
+        limit: ^per_page,
+        offset: ^offset
       )
 
     Repo.all(query)
+  end
+
+  def count_user_pages(%User{} = user) do
+    from(p in Page, where: p.user_id == ^user.id)
+    |> Repo.aggregate(:count, :id)
   end
 
   @doc """
@@ -215,6 +227,14 @@ defmodule KoombeaScraper.Scraper do
   """
   def list_links do
     Repo.all(Link)
+  end
+
+  def list_page_links(%Page{} = page, params \\ []) do
+    per_page = Keyword.get(params, :per_page, 10)
+    page_num = Keyword.get(params, :page, 1)
+    offset = (page_num - 1) * per_page
+
+    from(l in Link, where: l.page_id == ^page.id, limit: ^per_page, offset: ^offset) |> Repo.all()
   end
 
   @doc """

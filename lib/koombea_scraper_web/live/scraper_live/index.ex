@@ -47,7 +47,34 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
           </.link>
         </:action>
       </.table>
+
+      <div class="flex justify-center my-4">
+        <.pagination_links page={@page} total_pages={@total_pages} />
+      </div>
     </Layouts.app>
+    """
+  end
+
+  defp pagination_links(assigns) do
+    ~H"""
+    <div class="join">
+      <%= if @page > 1 do %>
+        <.link class="join-item btn" patch={~p"/pages?page=#{@page - 1}"}>«</.link>
+      <% end %>
+
+      <%= for i <- 1..@total_pages//1 do %>
+        <.link
+          class={"join-item btn #{if i == @page, do: "btn-active"}"}
+          patch={~p"/pages?page=#{i}"}
+        >
+          {i}
+        </.link>
+      <% end %>
+
+      <%= if @page < @total_pages do %>
+        <.link class="join-item btn" patch={~p"/pages?page=#{@page + 1}"}>»</.link>
+      <% end %>
+    </div>
     """
   end
 
@@ -61,15 +88,28 @@ defmodule KoombeaScraperWeb.ScraperLive.Index do
      socket
      |> assign_user(session)
      |> assign(:page_title, "Listing Pages")
-     |> assign(:pages, [])}
+     |> assign(:pages, [])
+     |> assign(:page, 1)
+     |> assign(:per_page, 10)
+     |> assign(:total_pages, 0)}
   end
 
   @impl true
-  def handle_params(_params, _uri, socket) do
+  def handle_params(params, _uri, socket) do
     user = socket.assigns.current_user
-    pages_with_counts = Scraper.list_user_pages_with_link_count(user)
+    page = String.to_integer(params["page"] || "1")
+    per_page = String.to_integer(params["per_page"] || "#{socket.assigns.per_page}")
 
-    socket = assign(socket, :pages, pages_with_counts)
+    pages_with_counts =
+      Scraper.list_user_pages_with_link_count(user, page: page, per_page: per_page)
+
+    total_pages = ceil(Scraper.count_user_pages(user) / per_page)
+
+    socket =
+      socket
+      |> assign(:pages, pages_with_counts)
+      |> assign(:page, page)
+      |> assign(:total_pages, total_pages)
 
     {:noreply, socket}
   end
