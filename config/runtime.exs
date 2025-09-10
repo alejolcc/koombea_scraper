@@ -56,6 +56,7 @@ if config_env() == :prod do
   config :koombea_scraper, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 
   config :koombea_scraper, KoombeaScraperWeb.Endpoint,
+    check_origin: false,
     url: [host: host, port: 443, scheme: "https"],
     http: [
       # Enable IPv6 and bind on all interfaces.

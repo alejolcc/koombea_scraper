@@ -69,3 +69,12 @@ mix phx.server
 ```
 
 Now you can visit `localhost:4000` from your browser.
+
+### 4. Using Docker
+
+There is a docker compose with the db and the app server. You can start using 
+
+Start the Phoenix server:
+```shell
+docker-compose up --build
+```
