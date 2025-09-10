@@ -10,7 +10,8 @@ defmodule KoombeaScraper.Client do
   def scrape(url) do
     with {:ok, _} <- validate_url(url),
          {:ok, response} <- Req.get(url),
-         {:ok, body} <- Floki.parse_document(response.body) do
+         {:ok, utf8_body} <- sanitize(response),
+         {:ok, body} <- Floki.parse_document(utf8_body) do
       title = Floki.find(body, "title") |> Floki.text()
 
       links =
@@ -34,6 +35,22 @@ defmodule KoombeaScraper.Client do
     case URI.parse(url) do
       %URI{scheme: scheme} when scheme in ["http", "https"] -> {:ok, url}
       _ -> {:error, :invalid_url}
+    end
+  end
+
+  # Some pages may not be encoded in UTF-8. This function attempts to
+  # convert the response body to UTF-8 if it detects invalid UTF-8 sequences.
+  defp sanitize(response) do
+    body = response.body
+
+    if String.valid?(body) do
+      {:ok, body}
+    else
+      Logger.warning("Invalid UTF-8 detected in response. Attempting Latin-1 conversion.")
+
+      # :unicode.characters_to_binary/3 is a powerful and safe way to convert.
+      converted_body = :unicode.characters_to_binary(body, :latin1, :utf8)
+      {:ok, converted_body}
     end
   end
 end

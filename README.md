@@ -20,6 +20,10 @@ I update the migration files for simplicity, but the correct way to do it is to 
 
 ### Pagination
 The backend logic handles params to perform queries with pagination, but a proper pagination UI was not implemented as the instructions indicated it was not a priority.
+## Tools
+Dependencies
+
+This project requires no additional dependencies beyond the default tools for a Phoenix application. I primarily used generators to create views, schemas, and other necessary components.
 
 ## Setup
 
